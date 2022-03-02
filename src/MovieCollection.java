@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
@@ -165,7 +166,73 @@ public class MovieCollection
   
   private void searchCast()
   {
-    /* TASK 4: IMPLEMENT ME! */
+    ArrayList<String> casts = new ArrayList<>();
+    ArrayList<String> individualActors = new ArrayList<>();
+    ArrayList<String> results = new ArrayList<>();
+    ArrayList<Movie> actorsInMovies = new ArrayList<>();
+
+
+    for (Movie movie : movies)
+    {
+      casts.add(movie.getCast());
+    }
+
+    for (String cast : casts)
+    {
+      String[] temp = cast.split("\\|");
+
+      for (String individualActor : temp)
+      {
+        if (!individualActors.contains(individualActor))
+        {
+          individualActors.add(individualActor);
+        }
+      }
+    }
+
+    System.out.print("Enter a person to search for (first or last name): ");
+    String searchTerm = scanner.nextLine().toLowerCase();
+
+    for (String actor : individualActors)
+    {
+      if (actor.toLowerCase().contains(searchTerm))
+      {
+        results.add(actor);
+      }
+    }
+
+    sortResults2(results);
+
+    for (int i = 0; i < results.size(); i++)
+    {
+      String actor = results.get(i);
+
+      int choiceNum = i + 1;
+
+      System.out.println("" + choiceNum + ". " + actor);
+    }
+
+    System.out.print("Enter the number of an actor: ");
+
+    int num = 0;
+
+    try {
+      num = scanner.nextInt();
+    } catch (NumberFormatException err) {
+      System.out.println("Invalid Integer.");
+    }
+
+    String selectedActor = results.get(num - 1);
+
+    for (Movie movie : movies)
+    {
+      if (movie.getCast().contains(selectedActor))
+      {
+        actorsInMovies.add(movie);
+      }
+    }
+
+    displayResults(actorsInMovies);
   }
 
   private void searchKeywords() {
@@ -209,7 +276,42 @@ public class MovieCollection
   
   private void listGenres()
   {
-    /* TASK 5: IMPLEMENT ME! */
+    ArrayList<String> genres = new ArrayList<>();
+    ArrayList<Movie> selectedGenreMovies = new ArrayList<>();
+
+    for (Movie movie : movies) {
+      String[] temp = movie.getGenres().split("\\|");
+      for (String genre : temp) {
+        if (!genres.contains(genre)) {
+          genres.add(genre);
+        }
+      }
+    }
+      sortResults2(genres);
+
+      for (int i = 0; i < genres.size(); i++)
+      {
+        String genre = genres.get(i);
+        int choiceNum = i + 1;
+        System.out.println("" + choiceNum + ". " + genre);
+      }
+
+      System.out.println("Which genre would you like to learn more about?");
+      System.out.print("Enter number: ");
+
+      int choice = scanner.nextInt();
+      scanner.nextLine();
+
+      String selectedGenre = genres.get(choice - 1);
+
+      for (Movie movie : movies)
+      {
+        if (movie.getGenres().contains(selectedGenre))
+        {
+          selectedGenreMovies.add(movie);
+        }
+      }
+      displayResults(selectedGenreMovies);
   }
   
   private void listHighestRated()
@@ -262,4 +364,63 @@ public class MovieCollection
   
   // ADD ANY ADDITIONAL PRIVATE HELPER METHODS you deem necessary
 
+  private void displayResults(ArrayList<Movie> results)
+  {
+    this.sortMovieResults(results);
+
+    for (int i = 0; i < results.size(); i++)
+    {
+      String title = results.get(i).getTitle();
+
+      int choiceNum = i + 1;
+
+      System.out.println("" + choiceNum + ". " + title);
+    }
+
+    System.out.print("Which movie would you like to learn more about?");
+    System.out.print("Enter number: ");
+
+    int choice = scanner.nextInt();
+    scanner.nextLine();
+
+    Movie selectedMovie = results.get(choice - 1);
+
+    displayMovieInfo(selectedMovie);
+
+    System.out.println("\n ** Press Enter to Return to Main Menu **");
+    scanner.nextLine();
+  }
+
+  private void sortMovieResults(ArrayList<Movie> listToSort)
+  {
+    for (int j = 1; j < listToSort.size(); j++)
+    {
+      Movie temp = listToSort.get(j);
+      String tempTitle = temp.getTitle();
+
+      int possibleIndex = j;
+      while (possibleIndex > 0 && tempTitle.compareTo(listToSort.get(possibleIndex - 1).getTitle()) < 0)
+      {
+        listToSort.set(possibleIndex, listToSort.get(possibleIndex - 1));
+        possibleIndex--;
+      }
+      listToSort.set(possibleIndex, temp);
+    }
+  }
+
+  private void sortResults2(ArrayList<String> listToSort)
+  {
+    for (int j = 1; j < listToSort.size(); j++)
+    {
+      String temp = listToSort.get(j);
+
+      int possibleIndex = j;
+      while (possibleIndex > 0 && temp.compareTo(listToSort.get(possibleIndex - 1)) < 0)
+      {
+        listToSort.set(possibleIndex, listToSort.get(possibleIndex - 1));
+        possibleIndex--;
+      }
+      listToSort.set(possibleIndex, temp);
+    }
+  }
 }
